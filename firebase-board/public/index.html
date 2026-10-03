@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Team-Board </title>
+<title>Team-Board</title>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
 --bg:#f6f5f2;--card:#fff;--tx:#1d1d1b;--mu:#76736c;--ln:#e4e1da;--ac:#2f6f5e;--acx:#fff;--todo:#c0392b;--thema:#2f6fd0;--abs:#7a4fc4;--ok:#2f8a55}
@@ -84,6 +84,10 @@ textarea{min-height:90px;resize:vertical}
   </div>
 </div>
 
+<script>
+window.addEventListener("error",function(e){var d=document.createElement("div");d.style.cssText="background:#c0392b;color:#fff;padding:10px 14px;font:14px system-ui;position:fixed;top:0;left:0;right:0;z-index:99";d.textContent="Fehler: "+(e.message||"unbekannt");document.body.appendChild(d)});
+window.addEventListener("unhandledrejection",function(e){var d=document.createElement("div");d.style.cssText="background:#c0392b;color:#fff;padding:10px 14px;font:14px system-ui;position:fixed;top:0;left:0;right:0;z-index:99";d.textContent="Fehler: "+((e.reason&&e.reason.message)||e.reason);document.body.appendChild(d)});
+</script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
@@ -230,7 +234,8 @@ $("fab").onclick=()=>openSheet(true);
 $("sheet").onclick=e=>{if(e.target===$("sheet"))openSheet(false)};
 $("txt").oninput=()=>{$("save").disabled=!$("txt").value.trim()};
 $("save").onclick=async()=>{
-  const text=$("txt").value.trim();if(!text||!col)return;
+  const text=$("txt").value.trim();if(!text)return;
+  if(!col){$("note").innerHTML='<div class="note">Keine Verbindung zur Datenbank. Seite neu laden oder Team-Code prüfen.</div>';return}
   $("save").disabled=true;
   try{
     const who=$("who").value.trim();
@@ -238,7 +243,7 @@ $("save").onclick=async()=>{
     else await col.add({text,type:newType,who,done:false,ts:Date.now()});
     openSheet(false);
   }
-  catch(e){$("note").innerHTML='<div class="note">Speichern nicht möglich (fehlende Schreibrechte?).</div>'}
+  catch(e){$("note").innerHTML='<div class="note">Speichern nicht möglich: '+(e.code||e.message)+'</div>'}
   $("save").disabled=!$("txt").value.trim();
 };
 $("allbtn").onclick=()=>{
@@ -248,23 +253,14 @@ $("allbtn").onclick=()=>{
 };
 renderTabs();render();
 
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBPvj9NKAt2BUD1B9IR2y68DhTs0pRRTR4",
-  authDomain: "team-board-v2.firebaseapp.com",
-  projectId: "team-board-v2",
-  storageBucket: "team-board-v2.firebasestorage.app",
-  messagingSenderId: "64924900498",
-  appId: "1:64924900498:web:e2c8100ce5245b11495a4b"
+const firebaseConfig={
+  apiKey:"AIzaSyBPvj9NKAt2BUD1B9IR2y68DhTs0pRRTR4",
+  authDomain:"team-board-v2.firebaseapp.com",
+  projectId:"team-board-v2",
+  storageBucket:"team-board-v2.firebasestorage.app",
+  messagingSenderId:"64924900498",
+  appId:"1:64924900498:web:e2c8100ce5245b11495a4b"
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
 let code="";
 try{
   const u=new URL(location.href).searchParams.get("code");
