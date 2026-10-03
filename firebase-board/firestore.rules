@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Jedes Team hat einen geheimen Code (= Name des Boards).
+    // Zugriff nur auf Boards mit einem Code von mindestens 8 Zeichen.
+    // Boards können nicht aufgelistet werden, man muss den Code kennen.
+    match /boards/{code}/items/{item} {
+      allow read, delete: if code.size() >= 8 && code.size() <= 64;
+      allow create, update: if code.size() >= 8 && code.size() <= 64
+        && request.resource.data.text is string
+        && request.resource.data.text.size() <= 1000;
+    }
+  }
+}
