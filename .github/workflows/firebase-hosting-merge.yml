@@ -14,3 +14,4 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TEAM_BOARD_V2 }}
           channelId: live
           projectId: team-board-v2
+          entryPoint: firebase-board
